@@ -12,14 +12,14 @@ import RPi.GPIO as GPIO
 
 
 # keeps track of the current LED state
-state = 0
+state = [0,0,0]
 
 # define LED and pushbutton pins
-LED1 = 12
-LED2 = 0
-LED3 = 0
-BTN_DOWN = 0
-BTN_UP = 16
+LED0 = 11
+LED1 = 13
+LED2 = 15
+BTN_DOWN = 16
+BTN_UP = 18
 
 def main():
     setup()
@@ -28,23 +28,30 @@ def main():
 
 def setup():
     GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(LED0, GPIO.OUT)
     GPIO.setup(LED1, GPIO.OUT)
+    GPIO.setup(LED2, GPIO.OUT)
+    GPIO.setup(BTN_DOWN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(BTN_UP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(BTN_UP, GPIO.FALLING, callback=intDetect, bouncetime=300)
+    GPIO.add_event_detect(BTN_DOWN, GPIO.FALLING, callback=countDown, bouncetime=300)
+    GPIO.add_event_detect(BTN_UP, GPIO.FALLING, callback=countUp, bouncetime=300)
 
-def intDetect(channel1):
-    print("Interrupt detected")
-    toggleLED()
-
-def toggleLED():
+def countDown(channel1):
+    print("countDown")
     global state
-    if state == 0:
-        state = 1
-    elif state == 1:
-	state = 0
-    else:
-	print("Illegal state!")
-    GPIO.output(LED1, state)
+    state = [0,0,0]
+    updateLEDs()
+
+def countUp(channel2):
+    print("countUp")
+    global state
+    state = [1,1,1]
+    updateLEDs()
+
+def updateLEDs():
+    GPIO.output(LED0, state[0])
+    GPIO.output(LED1, state[1])
+    GPIO.output(LED2, state[2])
 
 
 # Only run the functions if 
