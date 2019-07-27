@@ -11,47 +11,39 @@ import time
 import RPi.GPIO as GPIO
 
 
-# keeps track of the current LED state
-state = [0,0,0]
+# keeps track of the current count
+counter = 0
 
 # define LED and pushbutton pins
-LED0 = 11
-LED1 = 13
-LED2 = 15
+LEDs = [11,13,15]
 BTN_DOWN = 16
 BTN_UP = 18
 
 def main():
     setup()
-    print("press button to toggle LED")
-
 
 def setup():
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(LED0, GPIO.OUT)
-    GPIO.setup(LED1, GPIO.OUT)
-    GPIO.setup(LED2, GPIO.OUT)
+
+    GPIO.setup(LEDs, GPIO.OUT)
+    GPIO.output(LEDs, 0)	# LEDs initially off
+
     GPIO.setup(BTN_DOWN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(BTN_UP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.add_event_detect(BTN_DOWN, GPIO.FALLING, callback=countDown, bouncetime=300)
     GPIO.add_event_detect(BTN_UP, GPIO.FALLING, callback=countUp, bouncetime=300)
 
 def countDown(channel1):
-    print("countDown")
-    global state
-    state = [0,0,0]
-    updateLEDs()
+    updateCount(-1)
 
 def countUp(channel2):
-    print("countUp")
-    global state
-    state = [1,1,1]
-    updateLEDs()
+    updateCount(1)
 
-def updateLEDs():
-    GPIO.output(LED0, state[0])
-    GPIO.output(LED1, state[1])
-    GPIO.output(LED2, state[2])
+def updateCount(a):
+    global counter
+    counter = (counter + a) % 8				# update counter, wrap if needed
+    state = [counter%2,(counter//2)%2,(counter//4)%2]	# update state
+    GPIO.output(LEDs, (state[0],state[1],state[2]))
 
 
 # Only run the functions if 
