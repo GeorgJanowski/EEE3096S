@@ -3,7 +3,7 @@
 Names: Georg Janowski
 Student Number: jnwgeo001
 Prac: 1
-Date: 27/07/2019
+Date: 04/08/2019
 """
 
 # import Relevant Librares
@@ -24,12 +24,15 @@ def main():
 
 def setup():
     GPIO.setmode(GPIO.BOARD)
-
+    
+    # setup LED pins as outputs, set initially off
     GPIO.setup(LEDs, GPIO.OUT)
-    GPIO.output(LEDs, 0)	# LEDs initially off
-
+    GPIO.output(LEDs, 0)
+    
+    # setup pushbutton pins
     GPIO.setup(BTN_DOWN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(BTN_UP, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    # attach countUp and countDown functions to pushbutton pins and setup debouncing
     GPIO.add_event_detect(BTN_DOWN, GPIO.FALLING, callback=countDown, bouncetime=300)
     GPIO.add_event_detect(BTN_UP, GPIO.FALLING, callback=countUp, bouncetime=300)
 
@@ -43,7 +46,7 @@ def updateCount(a):
     global counter
     counter = (counter + a) % 8				# update counter, wrap if needed
     state = [counter%2,(counter//2)%2,(counter//4)%2]	# update state
-    GPIO.output(LEDs, (state[0],state[1],state[2]))
+    GPIO.output(LEDs, (state[0],state[1],state[2]))	# update LED outputs
 
 
 # Only run the functions if 
